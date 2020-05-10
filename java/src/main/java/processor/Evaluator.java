@@ -14,11 +14,11 @@ import java.util.Stack;
 
 public class Evaluator {
     public static void main(String[] args) {
-        List<Token> tokens = Lexer.tokenize("term1&term2");
-
+        List<Token> tokens = Lexer.tokenize("(term1&term2)&term3");
+        System.err.println(String.format("[Evaluator] tokens: %s", tokens));
         //tokens = Lexer.tokenize("*3(*-2!3)");
         List<Token> transformedTokens = Parser.transformToPostFix(tokens);
-        System.err.println(transformedTokens);
+        System.err.println(String.format("[Evaluator] transformedTokens: %s", transformedTokens));
         double result = evaluate(transformedTokens, 3);
         System.out.println(result);
     }
