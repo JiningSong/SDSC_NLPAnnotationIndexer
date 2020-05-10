@@ -14,11 +14,11 @@ import java.util.Stack;
 
 public class Evaluator {
     public static void main(String[] args) {
-        List<Token> tokens = Lexer.tokenize("1.5(18/(10-1))");
+        List<Token> tokens = Lexer.tokenize("term1&term2");
+
         //tokens = Lexer.tokenize("*3(*-2!3)");
-        System.out.println(tokens);
         List<Token> transformedTokens = Parser.transformToPostFix(tokens);
-        System.out.println(transformedTokens);
+        System.err.println(transformedTokens);
         double result = evaluate(transformedTokens, 3);
         System.out.println(result);
     }
@@ -26,7 +26,7 @@ public class Evaluator {
     //stack-based evaluation of RPN expression
     public static double evaluate(List<Token> tokens, int digitToRound) {
         Stack<Token> evalStack = new Stack<>();
-        for(Token curToken : tokens) {
+        for(Token curToken : tokens) { 
             //push number to stack
             if(curToken.getType() == TokenType.NUMBER) {
                 evalStack.push(curToken);

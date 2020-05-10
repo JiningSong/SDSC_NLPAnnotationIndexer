@@ -55,23 +55,25 @@ public class Lexer {
                     }
                 }
                 i++;
-                //check if number
-            } else if(Character.isDigit(curChar)) {
+                //check if character
+            } else if(Character.isDigit(curChar) || Character.isLetter(curChar)) {
                 int j;
                 //find end of number
                 for(j = i; j < expression.length(); j++) {
                     char curDigitChar = expression.charAt(j);
-                    if(!Character.isDigit(curDigitChar) && !(curDigitChar == '.')) {
+                    if(!Character.isDigit(curDigitChar) && !Character.isLetter(curDigitChar)) {
                         //exit loop without incrementing j
                         break;
                     }
                 }
-                //check invalid point
-                if(expression.charAt(j-1) == '.') {
-                    throw new ExceptionCollection.TokenizeException(curChar, i+1);
-                }
-                tokens.add(new Token<>(Double.parseDouble((unaryNeg ? "-" : "") + expression.substring(i, j)), TokenType.NUMBER));
+                // //check invalid point
+                // if(expression.charAt(j-1) == '.') {
+                //     throw new ExceptionCollection.TokenizeException(curChar, i+1);
+                // }
+                // tokens.add(new Token<>(Double.parseDouble((unaryNeg ? "-" : "") + expression.substring(i, j)), TokenType.NUMBER));
+                tokens.add(new Token<>(expression.substring(i, j), TokenType.TERM));
                 //update token index to skip after entire read number
+
                 i = j;
                 unaryNeg = false;
             } else {

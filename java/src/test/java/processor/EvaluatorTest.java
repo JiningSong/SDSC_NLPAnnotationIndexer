@@ -29,7 +29,7 @@ public class EvaluatorTest {
     @Test
     public void testEvaluate3Valid() {
         String expression = "2*3.3";
-        double expected = 6.9d;
+        double expected = 6.6d;
         assertEquals(expected, Evaluator.evaluate(Parser.transformToPostFix(Lexer.tokenize(expression)), ACCURACY), DELTA);
     }
 
