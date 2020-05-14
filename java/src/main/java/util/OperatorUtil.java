@@ -22,6 +22,7 @@ public class OperatorUtil {
         for(Operator cur : Operator.values()) {
             char curSymbol = cur.getSymbol();
             if (curSymbol == operator) {
+                System.err.println(String.format("[OperatorUtil:cur]: %s", cur.toString()));
                 return cur;
             }
         }

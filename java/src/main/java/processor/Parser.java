@@ -21,7 +21,6 @@ public class Parser {
         int tokenCounter = 0;
 
         for(Token curToken : tokens) {
-            System.err.println(String.format("[Parser] current token: %s", curToken.toString()));
             tokenCounter++;
             switch(curToken.getType()) {
                 case OPERATOR:

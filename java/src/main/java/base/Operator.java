@@ -7,6 +7,8 @@ import static base.Operator.Associativity.RIGHT;
 
 public enum Operator {
     ADD(1, LEFT, '+', a -> a[0]+a[1]),
+    AND(1, LEFT, '&', null),
+    OR(1, LEFT, '|', null),
     SUB(1, LEFT, '-', a -> a[0]-a[1]),
     MUL(2, LEFT, '*', a -> a[0]*a[1]),
     DIV1(2, LEFT, '/', a -> a[0]/a[1]),
@@ -16,6 +18,7 @@ public enum Operator {
     PARLEFT(4, null, '(', null),
     PARRIGHT(4, null, ')', null),
     FAC(5, null, '!', a -> MathUtil.factorial(a[0]));
+    
 
     private int precedence;
     private Associativity associativity;
