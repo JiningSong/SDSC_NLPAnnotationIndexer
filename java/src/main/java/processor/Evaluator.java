@@ -6,6 +6,8 @@ import base.Token;
 import base.TokenType;
 import exception.ExceptionCollection;
 import util.OperatorUtil;
+import index.App;
+import index.App.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,8 +22,8 @@ import java.util.stream.Collectors;
 import org.javatuples.Triplet;
 
 public class Evaluator {
-    public static void main(String[] args) {
-        String qeury = "<term4>&(<term1>|<term2>)";
+    public static void main(String[] args) throws ClassNotFoundException {
+        String qeury = "(<NER:B-PERSON+I-PERSON*E-PERSON*>|<UPOS:NOUN+>)";
         List<Token> tokens = Lexer.tokenize(qeury);
         System.err.println(String.format("[Evaluator:tokens]: %s", tokens));
         // tokens = Lexer.tokenize("*3(*-2!3)");
@@ -34,7 +36,7 @@ public class Evaluator {
 
     // stack-based evaluation of RPN expression
     public static Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> evaluate(
-            List<Token> tokens) {
+            List<Token> tokens) throws ClassNotFoundException {
 
         // Generate list of query terms
         ArrayList<String> queryTerms = new ArrayList<String>();
@@ -121,7 +123,8 @@ public class Evaluator {
 
             // push number to stack
             if (curToken.getType() == TokenType.TERM) {
-                Token queryResult = new Token<>(_term_dict.get(curToken.toString()), TokenType.LIST);
+                // TODO: Replace this line with the actual Regex result
+                Token queryResult = new Token<>(App.findRegexMatches(curToken.toString()), TokenType.LIST);
                 evalStack.push(queryResult);
                 // operator handling
             } else {
