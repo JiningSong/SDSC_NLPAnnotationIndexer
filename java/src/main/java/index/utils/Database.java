@@ -90,14 +90,14 @@ public class Database {
      * 
      * Description: Output regex results to disk through FileWriters
      * 
-     * @param app          App object that stores configs
+     * @param indexer      Indexer object that stores configs
      * @param regexResults regex results containing token meta data
      * @param docID        doc_id for the regex result
      * @param sentID       sent_id for the regex result
      * @param fwDataset    FW for dataset
      * @param fwDatabase   FW for database
      */
-    public static void populateRegexMatches(App app, FileWriter fwDataset, FileWriter fwDatabase,
+    public static void populateRegexMatches(Indexer index, FileWriter fwDataset, FileWriter fwDatabase,
             String normalizedRegexPattern) throws ClassNotFoundException, IOException {
 
         // Database connection
@@ -125,7 +125,7 @@ public class Database {
 
                 // populate tokens list with all tokens from the current sentence
                 List<Triplet<String, String, Integer>> tokenList = Database.getTokenList(conn,
-                        rs.getBigDecimal("sent_id"), app.getTokenQuery(), app.getAnnotationIndex());
+                        rs.getBigDecimal("sent_id"), index.getTokenQuery(), index.getAnnotationIndex());
 
                 // Stores annotation patterns
                 String annotationPattern = Utils.generateAnnotationPattern(tokenList);
@@ -151,7 +151,7 @@ public class Database {
     }
 
     public static Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> getRegexMatches(
-            App app, String normalizedRegexPattern) throws ClassNotFoundException {
+            Indexer indexer, String normalizedRegexPattern) throws ClassNotFoundException {
         // Database connection
         Connection conn = Database.connect();
 
@@ -177,7 +177,7 @@ public class Database {
 
                 // populate tokens list with all tokens from the current sentence
                 List<Triplet<String, String, Integer>> tokenList = Database.getTokenList(conn,
-                        rs.getBigDecimal("sent_id"), app.getTokenQuery(), app.getAnnotationIndex());
+                        rs.getBigDecimal("sent_id"), indexer.getTokenQuery(), indexer.getAnnotationIndex());
 
                 // Stores annotation patterns
                 String annotationPattern = Utils.generateAnnotationPattern(tokenList);

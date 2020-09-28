@@ -9,6 +9,8 @@ import java.util.Hashtable;
 
 import org.javatuples.Triplet;
 
+import index.Indexer;
+
 import org.javatuples.Pair;
 
 public class Utils {
@@ -83,9 +85,10 @@ public class Utils {
      * 
      * @return normalized regex pattern
      */
-    public static String normalizeRegexPattern(String regexPattern, String annotationType,
-            Hashtable<String, String> normTable) {
-
+    public static String normalizeRegexPattern(Indexer indexer) {
+        String regexPattern = indexer.getRegex();
+        String annotationType = indexer.getAnnotationType();
+        Hashtable<String, String> normTable =  indexer.getRegexNormDict();
         String normalizedRegex;
 
         // unify letter cases
@@ -141,7 +144,7 @@ public class Utils {
         }
     }
 
-    public static Pair<String, String> seperateTypeAndPattern(String query) {
+    public static Pair<String, String> parseTypeAndPattern(String query) {
         if (query.charAt(3) == ':' || query.charAt(4) == ':') {
             String[] parts = query.split(":", 2);
             return new Pair<String, String>(parts[0], parts[1]);
@@ -149,5 +152,40 @@ public class Utils {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Function Name: buildConfigs
+     * 
+     * Description: Select configs according to user input. Configs set here
+     * includes token query, annotaion column, annotation transformation dictionary
+     * 
+     * @param annotationType the type of annotaion that users wants to perform Regex
+     *                       matchings on
+     */
+    public static Triplet<String, Integer, Hashtable<String, String>> buildConfigs(String annotationType) {
+
+        final int UPOS_INDEX = 7;
+        final int XPOS_INDEX = 8;
+        final int ENTITY_TYPE_INDEX = 5;
+        final int DEPENDENCY_RELATION_INDEX = 9;
+
+        switch (annotationType) {
+            case "UPOS":
+                return new Triplet<String, Integer, Hashtable<String, String>>(Configs.POS_QUERY, UPOS_INDEX,
+                        RegexNormDict.uposDict);
+            case "XPOS":
+                return new Triplet<String, Integer, Hashtable<String, String>>(Configs.POS_QUERY, XPOS_INDEX,
+                        RegexNormDict.xposDict);
+            case "NER":
+                return new Triplet<String, Integer, Hashtable<String, String>>(Configs.NER_QUERY, ENTITY_TYPE_INDEX,
+                        RegexNormDict.NERDict);
+            case "DEPS":
+                return new Triplet<String, Integer, Hashtable<String, String>>(Configs.DEPPARSE_QUERY,
+                        DEPENDENCY_RELATION_INDEX, RegexNormDict.depparseDict);
+            default:
+                return null;
+        }
+
     }
 }
