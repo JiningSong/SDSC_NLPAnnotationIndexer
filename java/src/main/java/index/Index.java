@@ -46,8 +46,9 @@ public class Index {
                 // Normalize Regex pattern according to user input and configs
                 String normalizedRegexPattern = Utils.normalizeRegexPattern(indexer);
 
-                // Return matches
-                Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> matches = Database
+                // Find regex matches
+                Database database = new Database();
+                Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> matches = database
                         .getRegexMatches(indexer, normalizedRegexPattern);
 
                 /********************* Stop timer *********************/

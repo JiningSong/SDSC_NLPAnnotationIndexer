@@ -22,15 +22,9 @@ import me.tongfei.progressbar.*;
 
 public class Database {
 
-    /**
-     * Function name: connect()
-     * 
-     * Description: Connect to the PostgresSQL database
-     * 
-     * @return a Connection object
-     * @throws ClassNotFoundException
-     */
-    public static Connection connect() throws ClassNotFoundException {
+    Connection conn;
+
+    public Database() throws ClassNotFoundException {
         Connection conn = null;
         try {
             Class.forName(Configs.DB_DRIVER);
@@ -39,8 +33,9 @@ public class Database {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return conn;
+        this.conn = conn;
     }
+
 
     /**
      * Function Name: getTokenList
@@ -54,13 +49,13 @@ public class Database {
      * @param token_query     query string to get all tokens having the same sent_id
      * @param annotationIndex col index where annotaion is stored in token table
      */
-    public static List<Triplet<String, String, Integer>> getTokenList(Connection conn, BigDecimal sent_id,
-            String token_query, int annotationIndex) throws SQLException {
+    public List<Triplet<String, String, Integer>> getTokenList(BigDecimal sent_id, String token_query,
+            int annotationIndex) throws SQLException {
 
         List<Triplet<String, String, Integer>> tokenList = new ArrayList<Triplet<String, String, Integer>>();
 
         // formulate and execute query
-        PreparedStatement ps = conn.prepareStatement(token_query);
+        PreparedStatement ps = this.conn.prepareStatement(token_query);
         ps.setBigDecimal(1, sent_id);
         ResultSet tokenRS = ps.executeQuery();
 
@@ -86,77 +81,19 @@ public class Database {
     }
 
     /**
-     * Function Name: populateRegexMatches
+     * Function Name: getRegexMatches
      * 
      * Description: Output regex results to disk through FileWriters
      * 
-     * @param indexer      Indexer object that stores configs
-     * @param regexResults regex results containing token meta data
-     * @param docID        doc_id for the regex result
-     * @param sentID       sent_id for the regex result
-     * @param fwDataset    FW for dataset
-     * @param fwDatabase   FW for database
+     * @param indexer                Indexer object that stores configs
+     * @param normalizedRegexPattern Normalized query pattern
      */
-    public static void populateRegexMatches(Indexer index, FileWriter fwDataset, FileWriter fwDatabase,
-            String normalizedRegexPattern) throws ClassNotFoundException, IOException {
-
-        // Database connection
-        Connection conn = Database.connect();
-
-        // Query sentence_segmentation table
-        try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 0);
-                ResultSet rs = stmt.executeQuery(Configs.SENT_QUERY);) {
-
-            // count number of sentences
-            int sentCount = 0;
-            if (rs.last()) {
-                sentCount = rs.getRow();
-                rs.beforeFirst();
-            }
-
-            Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> matchingResults = new Hashtable();
-
-            ProgressBar pb = new ProgressBar("Performing REGEX Matching on sentences", sentCount);
-            // Process each sentence stored in sentence_segmentation table
-            while (rs.next()) {
-
-                String docID = rs.getBigDecimal("doc_id").toString();
-                String sentID = rs.getBigDecimal("sent_id").toString();
-
-                // populate tokens list with all tokens from the current sentence
-                List<Triplet<String, String, Integer>> tokenList = Database.getTokenList(conn,
-                        rs.getBigDecimal("sent_id"), index.getTokenQuery(), index.getAnnotationIndex());
-
-                // Stores annotation patterns
-                String annotationPattern = Utils.generateAnnotationPattern(tokenList);
-
-                Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> regexResults = RegexMatcher
-                        .findMatches(normalizedRegexPattern, annotationPattern, tokenList, docID, sentID);
-
-                if (regexResults.size() != 0) {
-                    matchingResults.putAll(regexResults);
-                }
-
-                // Output results to disk
-                // Utils.outputResult(regexResults, docID, sentID, fwDataset, fwDatabase);
-                pb.step();
-            }
-            System.out.println(matchingResults.toString());
-
-            pb.close();
-
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
-    public static Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> getRegexMatches(
+    public Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> getRegexMatches(
             Indexer indexer, String normalizedRegexPattern) throws ClassNotFoundException {
         // Database connection
-        Connection conn = Database.connect();
 
         // Query sentence_segmentation table
-        try (Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 0);
+        try (Statement stmt = this.conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 0);
                 ResultSet rs = stmt.executeQuery(Configs.SENT_QUERY);) {
 
             // count number of sentences
@@ -176,8 +113,8 @@ public class Database {
                 String sentID = rs.getBigDecimal("sent_id").toString();
 
                 // populate tokens list with all tokens from the current sentence
-                List<Triplet<String, String, Integer>> tokenList = Database.getTokenList(conn,
-                        rs.getBigDecimal("sent_id"), indexer.getTokenQuery(), indexer.getAnnotationIndex());
+                List<Triplet<String, String, Integer>> tokenList = this.getTokenList(rs.getBigDecimal("sent_id"),
+                        indexer.getTokenQuery(), indexer.getAnnotationIndex());
 
                 // Stores annotation patterns
                 String annotationPattern = Utils.generateAnnotationPattern(tokenList);

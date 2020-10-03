@@ -14,3 +14,4 @@ public class Configs {
     public static final String DB_USERNAME = "postgres";
     public static final String DB_PASSWORD = "";
 }
+
