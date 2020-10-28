@@ -1,6 +1,6 @@
-package util;
+package queryParser.util;
 
-import base.Operator;
+import queryParser.base.Operator;
 
 import java.util.Objects;
 

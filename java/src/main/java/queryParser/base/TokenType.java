@@ -1,4 +1,4 @@
-package base;
+package queryParser.base;
 
 public enum TokenType {
     OPERATOR,

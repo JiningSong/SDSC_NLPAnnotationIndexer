@@ -1,6 +1,6 @@
-package util;
+package queryParser.util;
 
-import exception.ExceptionCollection;
+import queryParser.exception.ExceptionCollection;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;

@@ -1,9 +1,9 @@
-package processor;
+package queryParser.processor;
 
-import base.Symbols;
-import base.Token;
-import base.TokenType;
-import exception.ExceptionCollection;
+import queryParser.base.Symbols;
+import queryParser.base.Token;
+import queryParser.base.TokenType;
+import queryParser.exception.ExceptionCollection;
 
 import java.util.*;
 

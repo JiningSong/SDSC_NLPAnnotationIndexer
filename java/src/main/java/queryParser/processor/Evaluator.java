@@ -1,4 +1,4 @@
-package processor;
+package queryParser.processor;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 
 import org.javatuples.Triplet;
 
-import base.Operator;
-import base.Symbols;
-import base.Token;
-import base.TokenType;
-import exception.ExceptionCollection;
+import queryParser.base.Operator;
+import queryParser.base.Symbols;
+import queryParser.base.Token;
+import queryParser.base.TokenType;
+import queryParser.exception.ExceptionCollection;
 import postingListGenerator.PostingListGenerator;
-import util.OperatorUtil;
+import queryParser.util.OperatorUtil;
 
 public class Evaluator {
     public Evaluator() {

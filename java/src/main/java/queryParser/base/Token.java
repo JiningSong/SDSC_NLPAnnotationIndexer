@@ -1,6 +1,6 @@
-package base;
+package queryParser.base;
 
-import exception.ExceptionCollection;
+import queryParser.exception.ExceptionCollection;
 
 import java.util.Objects;
 

@@ -1,15 +1,12 @@
-package base;
+package queryParser.base;
 
-import util.MathUtil;
+import queryParser.util.MathUtil;
 
-import static base.Operator.Associativity.LEFT;
-import static base.Operator.Associativity.RIGHT;
+import static queryParser.base.Operator.Associativity.LEFT;
+import static queryParser.base.Operator.Associativity.RIGHT;
 
 public enum Operator {
-    AND(1, LEFT, '&', null),
-    OR(1, LEFT, '|', null),
-    PARLEFT(4, null, '(', null),
-    PARRIGHT(4, null, ')', null);
+    AND(1, LEFT, '&', null), OR(1, LEFT, '|', null), PARLEFT(4, null, '(', null), PARRIGHT(4, null, ')', null);
 
     private int precedence;
     private Associativity associativity;
@@ -40,8 +37,7 @@ public enum Operator {
     }
 
     public enum Associativity {
-        LEFT,
-        RIGHT
+        LEFT, RIGHT
     }
 
     @FunctionalInterface

@@ -1,10 +1,10 @@
-package processor;
+package queryParser.processor;
 
-import base.Operator;
-import base.Symbols;
-import base.Token;
-import exception.ExceptionCollection;
-import util.OperatorUtil;
+import queryParser.base.Operator;
+import queryParser.base.Symbols;
+import queryParser.base.Token;
+import queryParser.exception.ExceptionCollection;
+import queryParser.util.OperatorUtil;
 
 import java.util.ArrayList;
 import java.util.List;

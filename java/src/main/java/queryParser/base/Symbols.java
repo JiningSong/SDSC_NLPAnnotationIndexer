@@ -1,4 +1,4 @@
-package base;
+package queryParser.base;
 
 import java.util.Arrays;
 import java.util.HashSet;

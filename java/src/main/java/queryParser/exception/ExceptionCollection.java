@@ -1,6 +1,6 @@
-package exception;
+package queryParser.exception;
 
-import base.TokenType;
+import queryParser.base.TokenType;
 
 public class ExceptionCollection {
 
