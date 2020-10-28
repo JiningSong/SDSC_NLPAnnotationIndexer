@@ -1,17 +1,6 @@
 package processor;
 
-import base.Operator;
-import base.Symbols;
-import base.Token;
-import base.TokenType;
-import exception.ExceptionCollection;
-import util.OperatorUtil;
-import index.Index;
-import index.Index.*;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -21,25 +10,26 @@ import java.util.stream.Collectors;
 
 import org.javatuples.Triplet;
 
+import base.Operator;
+import base.Symbols;
+import base.Token;
+import base.TokenType;
+import exception.ExceptionCollection;
+import postingListGenerator.PostingListGenerator;
+import util.OperatorUtil;
+
 public class Evaluator {
-    public static void main(String[] args) throws ClassNotFoundException {
-
-        // TODO: Remove hardcoded test query
-        String qeury = "(<NER:B-PERSON+I-PERSON*E-PERSON*>|<UPOS:NOUN+>)";
-
-        // TOkenize and priorize terms and operators within query to post fix
-        List<Token> tokens = Lexer.tokenize(qeury);
-        List<Token> transformedTokens = Parser.transformToPostFix(tokens);
-
-        // Evaluate the query expression
-        Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> result = (Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>) evaluate(
-                transformedTokens);
-        System.out.println(result.toString());
+    public Evaluator() {
+        super();
     }
 
     // stack-based evaluation of RPN expression
-    public static Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> evaluate(
+    public Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> evaluate(
             List<Token> tokens) throws ClassNotFoundException {
+
+        // Instantiate a PostingListGenerator for generating posting lists for the given
+        // queries
+        PostingListGenerator postingListGenerator = new PostingListGenerator();
 
         // Generate list of query terms
         ArrayList<String> queryTerms = new ArrayList<String>();
@@ -56,8 +46,8 @@ public class Evaluator {
 
             // push number to stack
             if (curToken.getType() == TokenType.TERM) {
-                // TODO: Replace this line with the actual Regex result
-                Token queryResult = new Token<>(Index.processQuery(curToken.toString()), TokenType.LIST);
+                Token queryResult = new Token<>(postingListGenerator.generatePostingList(curToken.toString()),
+                        TokenType.LIST);
                 evalStack.push(queryResult);
                 // operator handling
             } else {

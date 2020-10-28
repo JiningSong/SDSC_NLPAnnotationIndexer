@@ -1,4 +1,4 @@
-package index.utils;
+package postingListGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
-package index.utils;
+package postingListGenerator;
 
-import index.*;
+import postingListGenerator.utils.*;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.io.*;
 
 import org.javatuples.Triplet;
 import me.tongfei.progressbar.*;
@@ -27,15 +26,15 @@ public class Database {
     public Database() throws ClassNotFoundException {
         Connection conn = null;
         try {
-            Class.forName(Configs.DB_DRIVER);
-            conn = DriverManager.getConnection(Configs.DB_URL, Configs.DB_USERNAME, Configs.DB_PASSWORD);
+            Class.forName(DatabaseConfigs.DB_DRIVER);
+            conn = DriverManager.getConnection(DatabaseConfigs.DB_URL, DatabaseConfigs.DB_USERNAME,
+                    DatabaseConfigs.DB_PASSWORD);
             System.out.println("Connected to the PostgreSQL server successfully.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         this.conn = conn;
     }
-
 
     /**
      * Function Name: getTokenList
@@ -89,12 +88,12 @@ public class Database {
      * @param normalizedRegexPattern Normalized query pattern
      */
     public Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> getRegexMatches(
-            Indexer indexer, String normalizedRegexPattern) throws ClassNotFoundException {
+            PostingListGenerator postingListGenerator) throws ClassNotFoundException {
         // Database connection
 
         // Query sentence_segmentation table
         try (Statement stmt = this.conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, 0);
-                ResultSet rs = stmt.executeQuery(Configs.SENT_QUERY);) {
+                ResultSet rs = stmt.executeQuery(DatabaseConfigs.SENT_QUERY);) {
 
             // count number of sentences
             int sentCount = 0;
@@ -114,13 +113,13 @@ public class Database {
 
                 // populate tokens list with all tokens from the current sentence
                 List<Triplet<String, String, Integer>> tokenList = this.getTokenList(rs.getBigDecimal("sent_id"),
-                        indexer.getTokenQuery(), indexer.getAnnotationIndex());
+                        postingListGenerator.getTokenQuery(), postingListGenerator.getAnnotationIndex());
 
                 // Stores annotation patterns
                 String annotationPattern = Utils.generateAnnotationPattern(tokenList);
 
                 Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> regexResults = RegexMatcher
-                        .findMatches(normalizedRegexPattern, annotationPattern, tokenList, docID, sentID);
+                        .findMatches(postingListGenerator.getNormalizedRegexPattern(), annotationPattern, tokenList, docID, sentID);
 
                 if (regexResults.size() != 0) {
                     matchingResults.putAll(regexResults);

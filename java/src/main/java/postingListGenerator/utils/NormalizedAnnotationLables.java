@@ -1,8 +1,8 @@
-package index.utils;
+package postingListGenerator.utils;
 
 import java.util.Hashtable;
 
-public class RegexNormDict {
+public class NormalizedAnnotationLables {
     public static Hashtable<String, String> uposDict = new Hashtable<String, String>() {
         {
             put("ADJ", "(ADJ\\s)");

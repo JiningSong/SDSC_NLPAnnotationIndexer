@@ -1,4 +1,4 @@
-package index.utils;
+package postingListGenerator.utils;
 
 import java.io.*;
 import java.util.Comparator;
@@ -8,9 +8,6 @@ import java.util.Set;
 import java.util.Hashtable;
 
 import org.javatuples.Triplet;
-
-import index.Indexer;
-
 import org.javatuples.Pair;
 
 public class Utils {
@@ -74,44 +71,6 @@ public class Utils {
     }
 
     /**
-     * Function Name: normalizeRegexPattern
-     * 
-     * Description: Normalize regex pattern by replacing '<,>' bounded regex pattern
-     * with round parantheses and spaces which are more acceptable by Java's Regex
-     * 
-     * @param regexPattern   unormalized regex pattern
-     * @param annotationType type of annotation within regex pattern
-     * @param normTable      hashtable used to normalize the pattern
-     * 
-     * @return normalized regex pattern
-     */
-    public static String normalizeRegexPattern(Indexer indexer) {
-        String regexPattern = indexer.getRegex();
-        String annotationType = indexer.getAnnotationType();
-        Hashtable<String, String> normTable =  indexer.getRegexNormDict();
-        String normalizedRegex;
-
-        // unify letter cases
-        if (annotationType.equals("4")) {
-            normalizedRegex = regexPattern.toLowerCase();
-        } else {
-            normalizedRegex = regexPattern.toUpperCase();
-        }
-
-        // replace strings in regex pattern which are equal to hashtable keys with the
-        // according hashtable values
-        Set<String> keys = normTable.keySet();
-        Iterator<String> itr = keys.iterator();
-        String key, value;
-        while (itr.hasNext()) {
-            key = itr.next();
-            value = normTable.get(key);
-            normalizedRegex = normalizedRegex.replace(key, value);
-        }
-        return normalizedRegex;
-    }
-
-    /**
      * Function Name: outputResult
      * 
      * Description: Output regex results to disk through FileWriters
@@ -144,7 +103,7 @@ public class Utils {
         }
     }
 
-    public static Pair<String, String> parseTypeAndPattern(String query) {
+    public static Pair<String, String> parseQuery(String query) {
         if (query.charAt(3) == ':' || query.charAt(4) == ':') {
             String[] parts = query.split(":", 2);
             return new Pair<String, String>(parts[0], parts[1]);
@@ -172,17 +131,17 @@ public class Utils {
 
         switch (annotationType) {
             case "UPOS":
-                return new Triplet<String, Integer, Hashtable<String, String>>(Configs.POS_QUERY, UPOS_INDEX,
-                        RegexNormDict.uposDict);
+                return new Triplet<String, Integer, Hashtable<String, String>>(DatabaseConfigs.POS_QUERY, UPOS_INDEX,
+                        NormalizedAnnotationLables.uposDict);
             case "XPOS":
-                return new Triplet<String, Integer, Hashtable<String, String>>(Configs.POS_QUERY, XPOS_INDEX,
-                        RegexNormDict.xposDict);
+                return new Triplet<String, Integer, Hashtable<String, String>>(DatabaseConfigs.POS_QUERY, XPOS_INDEX,
+                        NormalizedAnnotationLables.xposDict);
             case "NER":
-                return new Triplet<String, Integer, Hashtable<String, String>>(Configs.NER_QUERY, ENTITY_TYPE_INDEX,
-                        RegexNormDict.NERDict);
+                return new Triplet<String, Integer, Hashtable<String, String>>(DatabaseConfigs.NER_QUERY,
+                        ENTITY_TYPE_INDEX, NormalizedAnnotationLables.NERDict);
             case "DEPS":
-                return new Triplet<String, Integer, Hashtable<String, String>>(Configs.DEPPARSE_QUERY,
-                        DEPENDENCY_RELATION_INDEX, RegexNormDict.depparseDict);
+                return new Triplet<String, Integer, Hashtable<String, String>>(DatabaseConfigs.DEPPARSE_QUERY,
+                        DEPENDENCY_RELATION_INDEX, NormalizedAnnotationLables.depparseDict);
             default:
                 return null;
         }

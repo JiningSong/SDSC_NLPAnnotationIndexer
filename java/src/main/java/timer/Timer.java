@@ -1,4 +1,4 @@
-package index.utils;
+package timer;
 
 public class Timer {
     double startTime;
