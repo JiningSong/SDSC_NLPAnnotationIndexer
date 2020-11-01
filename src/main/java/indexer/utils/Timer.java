@@ -1,4 +1,4 @@
-package indexer.timer;
+package indexer.utils;
 
 public class Timer {
     double startTime;

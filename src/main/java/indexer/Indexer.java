@@ -1,7 +1,13 @@
 package indexer;
 
+import indexer.utils.Utils;
+
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.javatuples.Triplet;
 
@@ -9,6 +15,7 @@ import indexer.queryParser.base.Token;
 import indexer.queryParser.processor.Evaluator;
 import indexer.queryParser.processor.Lexer;
 import indexer.queryParser.processor.Parser;
+import indexer.utils.Utils;
 
 public class Indexer {
     private String query;
@@ -42,7 +49,7 @@ public class Indexer {
                 .evaluate(transformedTokens);
     }
 
-    public static void main(String[] args) throws ClassNotFoundException {
+    public static void main(String[] args) throws ClassNotFoundException, IOException {
 
         // TODO: Remove hardcoded test query
         String query = "(<NER:B-PERSON+I-PERSON*E-PERSON*>|<NER:B-GPE+I-GPE*E-GPE*>)|<NER:S-Cardinal+>";
@@ -51,9 +58,9 @@ public class Indexer {
         indexer.setQuery(query);
 
         // Evaluate the query expression
-        Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> result = indexer
+        Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> results = indexer
                 .indexQuery();
 
-        System.out.println(result.toString());
+        Utils.saveResultsOnDisk(query, results);
     }
 }

@@ -1,7 +1,7 @@
 package indexer.postingListGenerator;
 
-import indexer.timer.Timer;
 import indexer.postingListGenerator.utils.Utils;
+import indexer.utils.Timer;
 
 import java.util.Hashtable;
 import java.util.Iterator;
