@@ -31,15 +31,6 @@ public class Evaluator {
         // queries
         PostingListGenerator postingListGenerator = new PostingListGenerator();
 
-        // Generate list of query terms
-        ArrayList<String> queryTerms = new ArrayList<String>();
-
-        for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i).getType() == TokenType.TERM) {
-                queryTerms.add((String) tokens.get(i).getValue());
-            }
-        }
-
         Stack<Token> evalStack = new Stack<>();
 
         for (Token curToken : tokens) {
