@@ -9,6 +9,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.javatuples.Triplet;
+import org.javatuples.Pair;
 
 import indexer.queryParser.base.Operator;
 import indexer.queryParser.base.Symbols;
@@ -35,15 +36,19 @@ public class Evaluator {
 
         for (Token curToken : tokens) {
 
-            // push number to stack
+            // generate posting list and push LIST Token containing <String, posting list>
+            // pair to stack
             if (curToken.getType() == TokenType.TERM) {
 
                 Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> postingList = postingListGenerator
                         .generatePostingList(curToken.toString());
+                Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>> queryAndToken = new Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>>(
+                        curToken.toString(), postingList);
                 Token queryResult = new Token<>(postingList, TokenType.LIST);
                 evalStack.push(queryResult);
                 // operator handling
-            } else {
+            } 
+            else {
                 char operatorSymbol = (char) curToken.getValue();
 
                 // if binary operator => 2 numbers needed, unary only needs 1 number
@@ -52,6 +57,10 @@ public class Evaluator {
                     throw new ExceptionCollection.EvaluatorException("No number found to map to operator.");
                 } else if (Symbols.BI_OPERATORS.contains(operatorSymbol)) {
                     // operation applies to top two elements
+                    Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>> queryAndToken1 = (Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>>) evalStack
+                            .pop().getValue();
+                    Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>> queryAndToken2 = (Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>>) evalStack
+                            .pop().getValue();
                     Token token1 = evalStack.pop();
                     Token token2 = evalStack.pop();
 
