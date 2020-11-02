@@ -37,8 +37,10 @@ public class Evaluator {
 
             // push number to stack
             if (curToken.getType() == TokenType.TERM) {
-                Token queryResult = new Token<>(postingListGenerator.generatePostingList(curToken.toString()),
-                        TokenType.LIST);
+
+                Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> postingList = postingListGenerator
+                        .generatePostingList(curToken.toString());
+                Token queryResult = new Token<>(postingList, TokenType.LIST);
                 evalStack.push(queryResult);
                 // operator handling
             } else {
@@ -54,7 +56,7 @@ public class Evaluator {
                     Token token2 = evalStack.pop();
 
                     Operator.VarArgsFunction operation = Objects
-                            .requireNonNull(OperatorUtil.getOperator((Character) curToken.getValue())).getOperation();
+                            .requireNonNull(OperatorUtil.getOperator(operatorSymbol)).getOperation();
 
                     // Performing AND operation
                     if (operation == null && (Character) curToken.getValue() == '&') {
