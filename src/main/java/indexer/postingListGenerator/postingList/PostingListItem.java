@@ -21,7 +21,7 @@ import org.javatuples.Triplet;
 public class PostingListItem {
     private Pair<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> value;
 
-    PostingListItem(Pair<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> value) {
+    public PostingListItem(Pair<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> value) {
         this.value = value;
     }
 

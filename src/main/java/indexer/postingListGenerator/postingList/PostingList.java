@@ -22,11 +22,11 @@ import java.util.Iterator;
 public class PostingList {
     HashSet<PostingListItem> list;
 
-    PostingList() {
+    public PostingList() {
         this.list = new HashSet<PostingListItem>();
     }
 
-    PostingList(HashSet<PostingListItem> list) {
+    public PostingList(HashSet<PostingListItem> list) {
         this.list = list;
     }
 
@@ -34,18 +34,32 @@ public class PostingList {
         return this.list;
     }
 
+    public void appendItem(PostingListItem item) {
+        this.list.add(item);
+        return;
+    }
+
     public static PostingList union(PostingList PostingListA, PostingList PostingListB) {
+
+        // clone setA, so that it's original value won't be changed by union operation
+        HashSet<PostingListItem> copySetA = new HashSet<>();
         HashSet<PostingListItem> setA = PostingListA.getList();
+        copySetA = (HashSet) setA.clone();
         HashSet<PostingListItem> setB = PostingListB.getList();
-        setA.addAll(setB);
-        return new PostingList(setA);
+        copySetA.addAll(setB);
+        return new PostingList(copySetA);
     }
 
     public static PostingList intersection(PostingList PostingListA, PostingList PostingListB) {
+
+        // clone setA, so that it's original value won't be changed by intersection
+        // peration
+        HashSet<PostingListItem> copySetA = new HashSet<>();
         HashSet<PostingListItem> setA = PostingListA.getList();
         HashSet<PostingListItem> setB = PostingListB.getList();
-        setA.retainAll(setB);
-        return new PostingList(setA);
+        copySetA = (HashSet) setA.clone();
+        copySetA.retainAll(setB);
+        return new PostingList(copySetA);
     }
 
     public String toString() {
