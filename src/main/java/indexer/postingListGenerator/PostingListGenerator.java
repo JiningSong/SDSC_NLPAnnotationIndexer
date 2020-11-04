@@ -1,5 +1,6 @@
 package indexer.postingListGenerator;
 
+import indexer.postingListGenerator.postingList.PostingList;
 import indexer.postingListGenerator.utils.Utils;
 import indexer.utils.Timer;
 
@@ -144,7 +145,7 @@ public class PostingListGenerator {
      * @return normalized regex pattern
      */
 
-    public Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> generatePostingList(
+    public PostingList generatePostingList(
             String query) throws ClassNotFoundException {
 
         Pair<String, String> typeAndPattern = Utils.parseQuery(query);
@@ -176,7 +177,7 @@ public class PostingListGenerator {
 
                 // Find regex matches
                 Database database = new Database();
-                Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> matches = database
+                PostingList matches = database
                         .getRegexMatches(this);
 
                 /********************* Stop timer *********************/

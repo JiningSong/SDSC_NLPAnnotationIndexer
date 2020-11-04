@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Hashtable;
 import java.util.regex.*;
 
+import org.javatuples.Pair;
 import org.javatuples.Triplet;
 import org.apache.commons.lang3.StringUtils;
+
+import indexer.postingListGenerator.postingList.*;
 
 public class RegexMatcher {
 
@@ -24,12 +27,10 @@ public class RegexMatcher {
      *         keys for teh hashtable are matched texts, values for each key are
      *         token data for tokens within matched text
      */
-    public static Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> findMatches(
-            String normalizedRegexPattern, String str2Check, List<Triplet<String, String, Integer>> tokens,
-            String docID, String sentID) {
-        // result dict -> tokensText: tokens list
-        Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> dict = new Hashtable<>();
+    public static PostingList findMatches(String normalizedRegexPattern, String str2Check,
+            List<Triplet<String, String, Integer>> tokens, String docID, String sentID) {
 
+        PostingList postinglist = new PostingList();
         Pattern checkRegex = Pattern.compile(normalizedRegexPattern);
         Matcher regexMatcher = checkRegex.matcher(str2Check);
 
@@ -61,12 +62,19 @@ public class RegexMatcher {
                 StringUtils.substring(tokensText, 0, tokensText.length() - 1);
 
                 if (tokensText.length() != 0) {
-                    Triplet<String, String, List<Triplet<String, String, Integer>>> result = new Triplet<String, String, List<Triplet<String, String, Integer>>>(
+                    
+                    // Create postingListItem with tokenslist and tokensText
+                    Triplet<String, String, List<Triplet<String, String, Integer>>> tokensList = new Triplet<String, String, List<Triplet<String, String, Integer>>>(
                             docID, sentID, matchedTokens);
-                    dict.put(result, tokensText);
+                    Pair<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> tokenListAndText = new Pair<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>(
+                            tokensList, tokensText);
+                    
+                    // Store new postingListItem in postingList
+                    PostingListItem postingListItem = new PostingListItem(tokenListAndText);
+                    postinglist.appendItem(postingListItem);
                 }
             }
         }
-        return dict;
+        return postinglist;
     }
 }

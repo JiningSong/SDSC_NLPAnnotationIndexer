@@ -17,6 +17,7 @@ import indexer.queryParser.base.Token;
 import indexer.queryParser.base.TokenType;
 import indexer.queryParser.exception.ExceptionCollection;
 import indexer.postingListGenerator.PostingListGenerator;
+import indexer.postingListGenerator.postingList.PostingList;
 import indexer.queryParser.util.OperatorUtil;
 
 public class Evaluator {
@@ -25,8 +26,7 @@ public class Evaluator {
     }
 
     // stack-based evaluation of RPN expression
-    public Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> evaluate(
-            List<Token> tokens) throws ClassNotFoundException {
+    public PostingList evaluate(List<Token> tokens) throws ClassNotFoundException {
 
         // Instantiate a PostingListGenerator for generating posting lists for the given
         // queries
@@ -40,11 +40,10 @@ public class Evaluator {
             // pair to stack
             if (curToken.getType() == TokenType.TERM) {
 
-                Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> postingList = postingListGenerator
-                        .generatePostingList(curToken.toString());
-                Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>> queryAndToken = new Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>>(
-                        curToken.toString(), postingList);
-                Token resultToken = new Token<>(queryAndToken, TokenType.LIST);
+                PostingList postingList = postingListGenerator.generatePostingList(curToken.toString());
+                Pair<String, PostingList> queryAndPostingList = new Pair<String, PostingList>(curToken.toString(),
+                        postingList);
+                Token resultToken = new Token<>(queryAndPostingList, TokenType.LIST);
                 evalStack.push(resultToken);
                 // operator handling
             } else {
@@ -55,13 +54,11 @@ public class Evaluator {
                         || evalStack.size() < 1 && Symbols.UNARY_OPERATORS.contains(operatorSymbol)) {
                     throw new ExceptionCollection.EvaluatorException("No number found to map to operator.");
                 } else if (Symbols.BI_OPERATORS.contains(operatorSymbol)) {
+
                     // operation applies to top two elements
-                    Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>> queryAndToken1 = (Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>>) evalStack
-                            .pop().getValue();
-                    Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>> queryAndToken2 = (Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>>) evalStack
-                            .pop().getValue();
-                    Token token1 = evalStack.pop();
-                    Token token2 = evalStack.pop();
+                    Pair<String, PostingList> queryAndToken1 = (Pair<String, PostingList>) evalStack.pop().getValue();
+                    Pair<String, PostingList> queryAndToken2 = (Pair<String, PostingList>) evalStack.pop().getValue();
+                    String concatenatedQuery = queryAndToken1.getValue0() + operatorSymbol + queryAndToken2.getValue0();
 
                     Operator.VarArgsFunction operation = Objects
                             .requireNonNull(OperatorUtil.getOperator(operatorSymbol)).getOperation();
@@ -69,45 +66,49 @@ public class Evaluator {
                     // Performing AND operation
                     if (operation == null && (Character) curToken.getValue() == '&') {
 
-                        Map<Object, Object> commonMap = ((Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>) queryAndToken1
-                                .getValue1()).entrySet().stream().filter(
-                                        x -> ((Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>) queryAndToken2
-                                                .getValue1()).containsKey(x.getKey()))
-                                        .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
-
-                        Hashtable<Object, Object> commonTable = new Hashtable();
-                        commonTable.putAll(commonMap);
+                        PostingList resultAfterAndOperation = PostingList.intersection(queryAndToken1.getValue1(),
+                                queryAndToken2.getValue1());
 
                         // push result back to stack
-                        evalStack.push(new Token<>(commonTable, TokenType.LIST));
-
+                        evalStack.push(
+                                new Token<>(new Pair<String, PostingList>(concatenatedQuery, resultAfterAndOperation),
+                                        TokenType.LIST));
                     }
                     // Performing OR operation
                     else if (operation == null && (Character) curToken.getValue() == '|') {
                         // TODO:
                         // ((Hashtable<String, List<String>>) queryAndToken1.getValue1())
-                        //         .putAll((Map<? extends String, ? extends List<String>>) queryAndToken2.getValue1());
+                        // .putAll((Map<? extends String, ? extends List<String>>)
+                        // queryAndToken2.getValue1());
 
                         // push result back to stack
-                        evalStack.push(new Token<>(token1.getValue(), TokenType.LIST));
+                        PostingList resultAfterOrOperation = PostingList.union(queryAndToken1.getValue1(),
+                                queryAndToken2.getValue1());
+                        evalStack.push(
+                                new Token<>(new Pair<String, PostingList>(concatenatedQuery, resultAfterOrOperation),
+                                        TokenType.LIST));
                     }
 
                 } else if (Symbols.UNARY_OPERATORS.contains(operatorSymbol)) {
+                    /*
+                    // TODO: unary operator (!) is not defined
                     // operation applies to top element
                     Token number = evalStack.pop();
                     Operator.VarArgsFunction operation = Objects
                             .requireNonNull(OperatorUtil.getOperator((Character) curToken.getValue())).getOperation();
                     // push result back to stack
                     evalStack.push(new Token<>(operation.apply((Double) number.getValue()), TokenType.NUMBER));
+                    */ 
+                    continue;
+
                 }
             }
         }
-        // numbers left over
+        // sub queries left over
         if (evalStack.size() > 1) {
             throw new ExceptionCollection.EvaluatorException("No operator found to map to number.");
         }
-        // only value in stack is result, round it to given digit number
-        return (Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>) evalStack.pop()
-                .getValue();
+        // Cast result to PostinList and return 
+        return (PostingList) ((Pair<String, PostingList>) (evalStack.pop().getValue())).getValue1();
     }
 }

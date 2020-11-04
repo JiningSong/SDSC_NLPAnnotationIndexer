@@ -1,5 +1,6 @@
 package indexer.postingListGenerator;
 
+import indexer.postingListGenerator.postingList.PostingList;
 import indexer.postingListGenerator.utils.*;
 
 import java.math.BigDecimal;
@@ -87,8 +88,7 @@ public class Database {
      * @param indexer                Indexer object that stores configs
      * @param normalizedRegexPattern Normalized query pattern
      */
-    public Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> getRegexMatches(
-            PostingListGenerator postingListGenerator) throws ClassNotFoundException {
+    public PostingList getRegexMatches(PostingListGenerator postingListGenerator) throws ClassNotFoundException {
         // Database connection
 
         // Query sentence_segmentation table
@@ -102,7 +102,7 @@ public class Database {
                 rs.beforeFirst();
             }
 
-            Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> matchingResults = new Hashtable();
+            PostingList matchingResults = new PostingList();
 
             ProgressBar pb = new ProgressBar("Performing REGEX Matching on sentences", sentCount);
             // Process each sentence stored in sentence_segmentation table
@@ -118,15 +118,13 @@ public class Database {
                 // Stores annotation patterns
                 String annotationPattern = Utils.generateAnnotationPattern(tokenList);
 
-                Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> regexResults = RegexMatcher
-                        .findMatches(postingListGenerator.getNormalizedRegexPattern(), annotationPattern, tokenList, docID, sentID);
+                PostingList regexResults = RegexMatcher.findMatches(postingListGenerator.getNormalizedRegexPattern(),
+                        annotationPattern, tokenList, docID, sentID);
 
                 if (regexResults.size() != 0) {
-                    matchingResults.putAll(regexResults);
+                    matchingResults = PostingList.union(matchingResults, regexResults);
                 }
 
-                // Output results to disk
-                // Utils.outputResult(regexResults, docID, sentID, fwDataset, fwDatabase);
                 pb.step();
             }
             pb.close();

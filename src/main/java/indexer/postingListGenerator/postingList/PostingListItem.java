@@ -36,7 +36,8 @@ public class PostingListItem {
     }
 
     // Override hashCode which now is generatted by concatenating the docId,
-    // sentId, and tokenIds stored in the Pair inside of PostingListItem.
+    // sentId, and tokenIds stored in the Pair inside of PostingListItem. then
+    // return concatenatedString.hashCode()
     @Override
     public int hashCode() {
         Triplet<String, String, List<Triplet<String, String, Integer>>> PostingList = this.value.getValue0();
@@ -48,8 +49,8 @@ public class PostingListItem {
         for (int i = 0; i < tokensCount; i++) {
             appendedIdString += String.valueOf(tokens.get(i).getValue2());
         }
-        int appendedId = Integer.parseInt(appendedIdString);
-        return appendedId;
+        return appendedIdString.hashCode();
+
     }
 
     public String toString() {

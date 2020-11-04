@@ -39,6 +39,10 @@ public class PostingList {
         return;
     }
 
+    public int size() {
+        return this.list.size();
+    }
+
     public static PostingList union(PostingList PostingListA, PostingList PostingListB) {
 
         // clone setA, so that it's original value won't be changed by union operation
