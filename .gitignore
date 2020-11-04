@@ -60,3 +60,4 @@ java/.DS_Store
 
 .vscode/
 java/dependency-reduced-pom.xml
+.VSCodeCounter/
