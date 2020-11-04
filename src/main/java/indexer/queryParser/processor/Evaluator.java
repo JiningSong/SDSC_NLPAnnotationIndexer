@@ -44,11 +44,10 @@ public class Evaluator {
                         .generatePostingList(curToken.toString());
                 Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>> queryAndToken = new Pair<String, Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>>(
                         curToken.toString(), postingList);
-                Token queryResult = new Token<>(postingList, TokenType.LIST);
-                evalStack.push(queryResult);
+                Token resultToken = new Token<>(queryAndToken, TokenType.LIST);
+                evalStack.push(resultToken);
                 // operator handling
-            } 
-            else {
+            } else {
                 char operatorSymbol = (char) curToken.getValue();
 
                 // if binary operator => 2 numbers needed, unary only needs 1 number
@@ -70,10 +69,10 @@ public class Evaluator {
                     // Performing AND operation
                     if (operation == null && (Character) curToken.getValue() == '&') {
 
-                        Map<Object, Object> commonMap = ((Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>) token1
-                                .getValue()).entrySet().stream().filter(
-                                        x -> ((Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>) token2
-                                                .getValue()).containsKey(x.getKey()))
+                        Map<Object, Object> commonMap = ((Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>) queryAndToken1
+                                .getValue1()).entrySet().stream().filter(
+                                        x -> ((Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String>) queryAndToken2
+                                                .getValue1()).containsKey(x.getKey()))
                                         .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
 
                         Hashtable<Object, Object> commonTable = new Hashtable();
@@ -85,9 +84,9 @@ public class Evaluator {
                     }
                     // Performing OR operation
                     else if (operation == null && (Character) curToken.getValue() == '|') {
-
-                        ((Hashtable<String, List<String>>) token1.getValue())
-                                .putAll((Map<? extends String, ? extends List<String>>) token2.getValue());
+                        // TODO:
+                        // ((Hashtable<String, List<String>>) queryAndToken1.getValue1())
+                        //         .putAll((Map<? extends String, ? extends List<String>>) queryAndToken2.getValue1());
 
                         // push result back to stack
                         evalStack.push(new Token<>(token1.getValue(), TokenType.LIST));
