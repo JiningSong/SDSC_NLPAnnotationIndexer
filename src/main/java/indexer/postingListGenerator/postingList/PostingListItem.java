@@ -56,4 +56,20 @@ public class PostingListItem {
     public String toString() {
         return this.value.toString();
     }
+
+    public String getDocId() {
+        return this.value.getValue0().getValue0();
+    }
+
+    public String getSentId() {
+        return this.value.getValue0().getValue1();
+    }
+
+    public List<Triplet<String, String, Integer>> getTokensList() {
+        return this.value.getValue0().getValue2();
+    }
+
+    public String getTokensText() {
+        return this.value.getValue1();
+    }
 }

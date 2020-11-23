@@ -1,5 +1,6 @@
 package indexer.queryParser.processor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -19,14 +20,14 @@ import indexer.queryParser.exception.ExceptionCollection;
 import indexer.postingListGenerator.PostingListGenerator;
 import indexer.postingListGenerator.postingList.PostingList;
 import indexer.queryParser.util.OperatorUtil;
+import indexer.utils.Utils;
 
 public class Evaluator {
     public Evaluator() {
         super();
     }
-
     // stack-based evaluation of RPN expression
-    public PostingList evaluate(List<Token> tokens) throws ClassNotFoundException {
+    public PostingList evaluate(List<Token> tokens) throws ClassNotFoundException, IOException {
 
         // Instantiate a PostingListGenerator for generating posting lists for the given
         // queries
@@ -35,7 +36,7 @@ public class Evaluator {
         Stack<Token> evalStack = new Stack<>();
 
         for (Token curToken : tokens) {
-
+            System.out.println(curToken.toString());
             // generate posting list and push LIST Token containing <String, posting list>
             // pair to stack
             if (curToken.getType() == TokenType.TERM) {
@@ -68,7 +69,7 @@ public class Evaluator {
 
                         PostingList resultAfterAndOperation = PostingList.intersection(queryAndToken1.getValue1(),
                                 queryAndToken2.getValue1());
-
+                        //TODO: posting list in resultAfterAndOperation should also be stored on disk
                         // push result back to stack
                         evalStack.push(
                                 new Token<>(new Pair<String, PostingList>(concatenatedQuery, resultAfterAndOperation),
@@ -76,14 +77,11 @@ public class Evaluator {
                     }
                     // Performing OR operation
                     else if (operation == null && (Character) curToken.getValue() == '|') {
-                        // TODO:
-                        // ((Hashtable<String, List<String>>) queryAndToken1.getValue1())
-                        // .putAll((Map<? extends String, ? extends List<String>>)
-                        // queryAndToken2.getValue1());
-
-                        // push result back to stack
                         PostingList resultAfterOrOperation = PostingList.union(queryAndToken1.getValue1(),
                                 queryAndToken2.getValue1());
+
+                        //TODO: posting list in resultAfterOrOperation should also be stored on disk
+                        // push result back to stack
                         evalStack.push(
                                 new Token<>(new Pair<String, PostingList>(concatenatedQuery, resultAfterOrOperation),
                                         TokenType.LIST));
@@ -91,14 +89,13 @@ public class Evaluator {
 
                 } else if (Symbols.UNARY_OPERATORS.contains(operatorSymbol)) {
                     /*
-                    // TODO: unary operator (!) is not defined
-                    // operation applies to top element
-                    Token number = evalStack.pop();
-                    Operator.VarArgsFunction operation = Objects
-                            .requireNonNull(OperatorUtil.getOperator((Character) curToken.getValue())).getOperation();
-                    // push result back to stack
-                    evalStack.push(new Token<>(operation.apply((Double) number.getValue()), TokenType.NUMBER));
-                    */ 
+                     * // TODO: unary operator (!) is not defined // operation applies to top
+                     * element Token number = evalStack.pop(); Operator.VarArgsFunction operation =
+                     * Objects .requireNonNull(OperatorUtil.getOperator((Character)
+                     * curToken.getValue())).getOperation(); // push result back to stack
+                     * evalStack.push(new Token<>(operation.apply((Double) number.getValue()),
+                     * TokenType.NUMBER));
+                     */
                     continue;
 
                 }
@@ -108,7 +105,7 @@ public class Evaluator {
         if (evalStack.size() > 1) {
             throw new ExceptionCollection.EvaluatorException("No operator found to map to number.");
         }
-        // Cast result to PostinList and return 
+        // Cast result to PostinList and return
         return (PostingList) ((Pair<String, PostingList>) (evalStack.pop().getValue())).getValue1();
     }
 }

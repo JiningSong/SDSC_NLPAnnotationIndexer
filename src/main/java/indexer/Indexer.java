@@ -1,73 +1,97 @@
 package indexer;
 
-import indexer.utils.Utils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.text.InternationalFormatter;
-
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
+import java.util.Scanner;
 
-import org.javatuples.Triplet;
-
+import indexer.postingListGenerator.postingList.PostingList;
 import indexer.queryParser.base.Token;
 import indexer.queryParser.processor.Evaluator;
 import indexer.queryParser.processor.Lexer;
 import indexer.queryParser.processor.Parser;
 import indexer.utils.Utils;
-import indexer.postingListGenerator.postingList.*;
-
-import org.javatuples.Pair;
 
 public class Indexer {
-    private String query;
+    private String index;
 
     Indexer() {
 
     }
 
-    Indexer(String query) {
-        this.query = query;
+    Indexer(String index) {
+        this.index = index;
     }
 
-    public void setQuery(String query) {
-        this.query = query;
+    public void setIndex(String index) {
+        this.index = index;
     }
 
-    public String getQeury() {
-        return this.query;
+    public String getIndex() {
+        return this.index;
     }
 
-    public PostingList indexQuery() throws ClassNotFoundException {
+    public Boolean createIndex() throws ClassNotFoundException, IOException {
 
         Evaluator evaluator = new Evaluator();
         // TOkenize and priorize terms and operators within query to post fix
-        List<Token> tokens = Lexer.tokenize(this.query);
+        List<Token> tokens = Lexer.tokenize(this.index);
         List<Token> transformedTokens = Parser.transformToPostFix(tokens);
 
+        System.out.println(transformedTokens.toString());
+
         // Evaluate the query expression
-        return (PostingList) evaluator.evaluate(transformedTokens);
+        PostingList results = (PostingList) evaluator.evaluate(transformedTokens);
+        System.out.println(results.toString());
+        Utils.savePostingListOnDisk(index, results);
+
+        return true;
+    }
+
+    public PostingList queryIndex(String query) {
+	//TODO: WIP
+        return null;
     }
 
     public static void main(String[] args) throws ClassNotFoundException, IOException {
-
-        // TODO: Remove hardcoded test query
-        String query = "(<NER:B-PERSON+I-PERSON*E-PERSON*>|<NER:B-GPE+I-GPE*E-GPE*>)|<NER:S-Cardinal+>";
-
+        Scanner scan = new Scanner(System.in);
         Indexer indexer = new Indexer();
-        indexer.setQuery(query);
 
-        // Evaluate the query expression
-        PostingList results = indexer.indexQuery();
+        while (true) {
 
-        System.out.println(results);
-        // Utils.saveResultsOnDisk(query, results);
+            System.out.print("Please type 1 or 2 for (1: createIndex, 2: queryIndex): ");
+            int userInput = scan.nextInt();
+
+            // Create index
+            if (userInput == 1) {
+                // Index on token sequences representing person, GPE, or cardinal.
+                // FIXME: Remove hardcoded test query
+                String index = "<NER:B-PERSON+I-PERSON*E-PERSON*>|(<NER:B-GPE+I-GPE*E-GPE*>|<NER:S-Cardinal+>)";
+                indexer.setIndex(index);
+                // generates posting list for the given index and store it on disk
+                indexer.createIndex();
+            }
+            // Query existing index
+            else if (userInput == 2) {
+                // This query finds person entities containing 'Harry' as substring
+                // FIXME: Remove hardcoded test query
+                String query = "<NER:B-PERSON+I-PERSON*E-PERSON*>{Harry}";
+                PostingList results = indexer.queryIndex(query);
+
+            }
+            // Invalid input
+            else {
+                System.out.print("Invalid input");
+            }
+        }
+
+        // // TODO: Remove hardcoded test query
+        // String query =
+        // "<NER:B-PERSON+I-PERSON*E-PERSON*>|(<NER:B-GPE+I-GPE*E-GPE*>|<NER:S-Cardinal+>)";
+
+        // Indexer indexer = new Indexer(query);
+
+        // // Evaluate the query expression
+        // PostingList results = indexer.indexQuery();
 
         /*
          * // FIXME: TEST PostList and PostListItem Triplet<String, String, Integer>

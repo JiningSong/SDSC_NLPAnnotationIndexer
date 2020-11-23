@@ -74,4 +74,8 @@ public class PostingList {
         }
         return outString;
     }
+
+    public Iterator<PostingListItem> iterator() {
+        return this.list.iterator();
+    }
 }

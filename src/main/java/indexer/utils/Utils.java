@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.javatuples.Triplet;
+
+import indexer.postingListGenerator.postingList.PostingList;
+import indexer.postingListGenerator.postingList.PostingListItem;
+
 import java.util.List;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -38,12 +42,10 @@ public class Utils {
         return null;
     }
 
-    public static int saveResultsOnDisk(String query,
-            Hashtable<Triplet<String, String, List<Triplet<String, String, Integer>>>, String> results)
-            throws IOException {
+    public static int savePostingListOnDisk(String query, PostingList results) throws IOException {
 
-        String POSTING_LIST_PATH_PATTERN = "%s/src/main/java/indexer/out/postingList-%s.out";
-        String POSTING_LIST_TOKENS_PATH_PATTERN = "%s/src/main/java/indexer/out/postingListTokens-%s.out";
+        String POSTING_LIST_PATH_PATTERN = "%s/src/main/java/indexer/out/PL-%s.out";
+        String POSTING_LIST_TOKENS_PATH_PATTERN = "%s/src/main/java/indexer/out/PLT-%s.out";
         String CURRENT_DIR = System.getProperty("user.dir");
 
         FileWriter postingListWriter = Utils
@@ -60,19 +62,18 @@ public class Utils {
             return 0;
         }
 
-        Iterator<Triplet<String, String, List<Triplet<String, String, Integer>>>> iterator = results.keySet()
-                .iterator();
+        Iterator<PostingListItem> iterator = results.iterator();
 
         while (iterator.hasNext()) {
 
-            Triplet<String, String, List<Triplet<String, String, Integer>>> postingList = iterator.next();
+            PostingListItem postingListItem = iterator.next();
 
-            String docId = postingList.getValue0();
-            String sentId = postingList.getValue1();
-            List<Triplet<String, String, Integer>> tokens = postingList.getValue2();
-            int tokensCount = tokens.size();
-
+            String docId = postingListItem.getDocId();
+            String sentId = postingListItem.getSentId();
             postingListTokensWriter.write(String.format("%s\n%s\n", docId, sentId));
+
+            List<Triplet<String, String, Integer>> tokens = postingListItem.getTokensList();
+            int tokensCount = tokens.size();
             postingListTokensWriter.write(String.format("%d\n", tokensCount));
 
             for (int i = 0; i < tokensCount; i++) {
@@ -82,8 +83,8 @@ public class Utils {
 
             postingListTokensWriter.write("\n");
 
-            String text = results.get(postingList);
-            postingListWriter.write(String.format("%s\n", text));
+            String tokensText = postingListItem.getTokensText();
+            postingListWriter.write(String.format("%s\n", tokensText));
         }
 
         postingListTokensWriter.close();
